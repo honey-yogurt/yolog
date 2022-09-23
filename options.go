@@ -8,6 +8,10 @@ import (
 	"os"
 )
 
+const (
+	FmtEmptySeparate = ""
+)
+
 var errUnmarshalNilLevel = errors.New("can't unmarshal a nil *Level")
 
 // Level
@@ -84,9 +88,15 @@ func initOptions(opts ...Option) (o *options) {
 		o.output = os.Stderr
 	}
 	if o.formatter == nil {
-		//o.formatter =  //设置默认输出格式
+		o.formatter = &TextFormatter{} //设置默认输出格式，普通文本模式
 	}
 	return
+}
+
+func WithOutput(output io.Writer) Option {
+	return func(o *options) {
+		o.output = output
+	}
 }
 
 // WithLevel
@@ -94,5 +104,23 @@ func initOptions(opts ...Option) (o *options) {
 func WithLevel(level Level) Option {
 	return func(o *options) {
 		o.level = level
+	}
+}
+
+func WithStdLevel(level Level) Option {
+	return func(o *options) {
+		o.stdLevel = level
+	}
+}
+
+func WithFormatter(formatter Formatter) Option {
+	return func(o *options) {
+		o.formatter = formatter
+	}
+}
+
+func WithDisableCaller(caller bool) Option {
+	return func(o *options) {
+		o.disableCaller = caller
 	}
 }
