@@ -11,7 +11,7 @@ import (
 // 将日志输出到支持的输出中
 type Entry struct {
 	logger *logger
-	Buffer *bytes.Buffer
+	Buffer *bytes.Buffer          // 缓冲区
 	Map    map[string]interface{} // json序列化format
 	Level  Level                  // 写入的日志级别
 	Time   time.Time              // 日志写入时间
@@ -26,7 +26,7 @@ func entry(logger *logger) *Entry {
 	return &Entry{
 		logger: logger,
 		Buffer: new(bytes.Buffer),
-		Map:    make(map[string]interface{}, 5),
+		Map:    make(map[string]interface{}, 5), // json序列化有5种维度
 	}
 }
 
@@ -53,15 +53,18 @@ func (e *Entry) write(level Level, format string, args ...interface{}) {
 }
 
 func (e *Entry) format() {
+	// format 就会进行格式化然后写入 buf 中，但不是真正写入文件中
 	_ = e.logger.opt.formatter.Format(e)
 }
 
 func (e *Entry) writer() {
 	e.logger.mu.Lock()
+	// 此时才将 buf 中数据写入文件
 	_, _ = e.logger.opt.output.Write(e.Buffer.Bytes())
 	e.logger.mu.Unlock()
 }
 
+// 重置配置
 func (e *Entry) release() {
 	e.Args, e.Line, e.File, e.Format, e.Func = nil, 0, "", "", ""
 	e.Buffer.Reset()
