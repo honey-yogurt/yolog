@@ -39,7 +39,7 @@ var LevelNameMapping = map[Level]string{
 func (l *Level) unmarshalText(text []byte) bool {
 	switch string(text) {
 	case "debug", "DEBUG":
-		*l = DebugLevel // todo 这里为什么要 *
+		*l = DebugLevel
 	case "info", "INFO":
 		*l = InfoLevel
 	case "warn", "WARN":
@@ -68,10 +68,10 @@ func (l *Level) UnmarshalText(text []byte) error {
 
 // 日志选项，可配置项
 type options struct {
-	output        io.Writer // 输出位置 标准输出或者文件输出
-	level         Level     // 输出级别
-	stdLevel      Level     //
-	formatter     Formatter // 设置输出级别 需要一个Formatter接口，先建一个空接口占位
+	output        io.Writer // 输出位置 标准控制台输出或者文件输出
+	level         Level     // 文件输出级别
+	stdLevel      Level     // 标准控制台输出级别
+	formatter     Formatter // 设置输出格式 需要一个Formatter接口
 	disableCaller bool      // 设置是否打印文件名和行号
 }
 
